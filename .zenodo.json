@@ -1,25 +1,12 @@
 {
-  "title": "Interaction Atlas of Amines with Lignocellulose Monomers: docked complexes, DLPNO-CCSD(T)/LED interaction energies, proton-transfer and nucleophilic reaction paths",
+  "title": "Amine–Lignocellulose Interaction Atlas (xTB build, v1.0.0)",
   "upload_type": "dataset",
-  "description": "Interactive atlas and underlying data for a computational study of amine (ethylamine, dimethylamine, diethylamine, triethylamine, DMB, DME) interactions with lignocellulose monomers (lignin units, Tricin, hydroxycinnamates, stilbene, and carbohydrate/uronic-acid units). Contents: 72 docked substrate-amine complexes (xyz), a pair table with docking energies and DLPNO-CCSD(T) interaction energies with Local Energy Decomposition (LED) components, ORCA 6.0 output files, a proton-transfer path set, a nucleophilic-reaction NEB path set and reaction network (GFN2-xTB, ALPB water), and the self-contained interactive web atlas. This is a snapshot: a subset of DLPNO calculations did not finish and are being rerun (see README).",
-  "creators": [
-    {
-      "name": "Adesanya, Taiwo Zacchaeus",
-      "affiliation": "University of Illinois Chicago"
-    }
-  ],
-  "keywords": [
-    "amine pretreatment",
-    "lignocellulose",
-    "non-covalent interactions",
-    "DLPNO-CCSD(T)",
-    "local energy decomposition",
-    "proton transfer",
-    "NEB",
-    "interactive atlas"
-  ],
+  "description": "Interactive web atlas of amine–lignocellulose interactions and reaction pathways (DFT and xTB, implicit water): interaction complexes, proton-transfer paths, reaction network and NEB minimum-energy paths for six amines. Serve the folder with any static web server and open index.html.",
+  "creators": [{"name": "Adesanya, Taiwo Zacchaeus", "affiliation": "University of Illinois Chicago"}],
+  "zenodo link": "https://doi.org/10.5281/zenodo.23197032",
   "license": "cc-by-4.0",
-  "version": "1.0",
   "access_right": "open",
-  "language": "eng"
+  "keywords": ["lignocellulose", "amine pretreatment", "NEB", "xTB", "reaction network", "computational chemistry"],
+  "version": "1.0.0"
 }
+https://zenodo.org/records/23197033

@@ -1,4 +1,3 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>Amine-Lignocellulose Interaction Atlas</title>
 <style>
 /* Layout: one workbench. Header + tabs + shared amine filter on top, a context strip that links the
@@ -75,6 +74,16 @@ td.cell.na{color:var(--muted);cursor:default}
 td.cell.na:hover{outline:none}
 td.sep,th.sep{border-left:1px solid var(--line)}
 tr.dim td{opacity:.28}
+table.tr{min-width:560px}
+table.tr th.am{text-align:center;color:var(--fg);font-size:12.5px;letter-spacing:.04em}
+table.tr th.am b{font-family:var(--mono);font-size:13px;display:block}
+table.tr th.am span{display:block;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);font-size:11px}
+table.tr th.dimh{opacity:.35}
+table.tr td.cell{text-align:center;min-width:64px}
+table.tr td.cell.dim{opacity:.28}
+table.tr th.row{white-space:nowrap;font-weight:500;font-size:13px;text-transform:none;letter-spacing:0;color:var(--fg)}
+table.tr tr.gh th.row{background:var(--surface2);font-family:var(--serif);font-size:14px;font-weight:600;border-top:1px solid var(--line);white-space:normal}
+table.tr tr.gh th.row span{display:inline;margin-left:10px;font-family:var(--sans);font-weight:400;font-size:11.5px;color:var(--muted)}
 .note{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px;color:var(--muted);font-size:13px;max-width:92ch}
 .note h3{font-family:var(--serif);font-size:16px;color:var(--fg);margin:0 0 6px}
 .note ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
@@ -243,7 +252,7 @@ new MutationObserver(syncTheme).observe(document.documentElement,{attributes:tru
 matchMedia("(prefers-color-scheme:dark)").addEventListener("change",syncTheme);
 /* overview */
 var OV=null;
-var NUCCOLS=[["Aminolysis","Aminolysis"],["Hydrolysis","Hydrolysis"],["E1cB","E1cB"],["CarbinolamineAddition","Carbinolamine"],["QMtrapping","QM trapping"],["Epoxide","Epoxide"]];
+var NUCCOLS=[["Aminolysis","Aminolysis"],["Hydrolysis","Ester linkage hydrolysis"],["XylAcHydrolysis","Xylan acetate hydrolysis"],["MeCoumHydrolysis","p-Coumarate hydrolysis"],["E1cB","E1cB"],["CarbinolamineAddition","Carbinolamine"],["QMtrapping","QM trapping"],["Epoxide","Epoxide"],["EnolPathI","β-O-4 enol path"],["Enolization","Aldehyde enolization"],["RingOpening","Pyranose ring opening"],["HofmannE2","Hofmann E2"],["AmadoriEnolization","Amadori enolization"],["AmadoriDehydration","Amadori dehydration"],["AmadoriRetroAldol","Amadori retro-aldol"]];
 var PTCOLS=[["Carboxylic","COOH"],["Phenolic","Phenolic OH"],["Aliphatic","Aliphatic OH"]];
 function fmt(v){return v==null?"–":(v>0?"+":v<0?"−":"")+Math.abs(v).toFixed(1)}
 function drawOverview(){
@@ -251,22 +260,22 @@ function drawOverview(){
   var cols=[];
   cols.push({g:"Non-covalent interactions",gs:"mean over substrates, kcal/mol",c:[{k:"dock",l:"Docking ΔE",get:function(a){return OV.atlas[a].dock},tab:"atlas",good:-1},{k:"led",l:"CCSD(T) ΔE",get:function(a){return OV.atlas[a].led},tab:"atlas",good:-1}]});
   cols.push({g:"Proton transfer",gs:"median ion pair − neutral, by O–H source",c:PTCOLS.map(function(x){return {k:x[0],l:x[1],get:function(a){var o=OV.pt[a][x[0]];return o?o.v:null},n:function(a){var o=OV.pt[a][x[0]];return o?o.n:0},tab:"pt",good:1}})});
-  cols.push({g:"Bond-forming steps",gs:"median highest image above reactant",c:NUCCOLS.map(function(x){return {k:x[0],l:x[1],get:function(a){var o=OV.nuc[a][x[0]];return o?o.v:null},n:function(a){var o=OV.nuc[a][x[0]];return o?o.n:0},tab:"nuc",rx:x[0],good:1}})});
+  cols.push({g:"Bond-forming steps",gs:"median barrier, refined saddle where available",c:NUCCOLS.map(function(x){return {k:x[0],l:x[1],get:function(a){var o=OV.nuc[a][x[0]];return o?o.v:null},n:function(a){var o=OV.nuc[a][x[0]];return o?o.n:0},tab:"nuc",rx:x[0],good:1}})});
   var flat=[];cols.forEach(function(g,gi){g.c.forEach(function(c,ci){c.first=ci===0&&gi>0;flat.push(c)})});
   flat.forEach(function(c){var vs=AMINES.map(c.get).filter(function(v){return v!=null});c.lo=Math.min.apply(null,vs);c.hi=Math.max.apply(null,vs)});
-  var h='<div class="tbl"><table><thead><tr><th class="row"></th>'+cols.map(function(g,i){return '<th class="grp'+(i?" sep":"")+'" colspan="'+g.c.length+'">'+g.g+'<span>'+g.gs+'</span></th>'}).join("")+'</tr><tr><th class="row">Amine</th>'+
-    flat.map(function(c){return '<th'+(c.first?' class="sep"':"")+'>'+c.l+'</th>'}).join("")+'</tr></thead><tbody>';
-  AMINES.forEach(function(a){
-    h+='<tr class="'+(st.amine&&st.amine!==a?"dim":"")+'"><td class="row"><b>'+a+'</b><span>'+AMCLASS[a]+'</span></td>';
-    flat.forEach(function(c){
-      var v=c.get(a),cls="cell"+(c.first?" sep":"");
-      if(v==null){h+='<td class="'+cls+' na">–</td>';return}
-      var t=c.hi===c.lo?.5:(v-c.lo)/(c.hi-c.lo);var strength=c.good<0?1-t:1-t;/* lower value = stronger in every column */
-      var pct=Math.round(10+strength*38);
-      var n=c.n?c.n(a):0;
-      h+='<td tabindex="0" class="'+cls+'" data-a="'+a+'" data-tab="'+c.tab+'" data-rx="'+(c.rx||"")+'" data-k="'+c.k+'" style="background:color-mix(in srgb,var(--accent) '+pct+'%,var(--surface))" title="'+(n?n+' job'+(n>1?"s":"")+' · ':'')+'open in '+(c.tab==="atlas"?"Interaction Atlas":c.tab==="pt"?"Proton Transfer":"Nucleophilic Reactions")+'">'+fmt(v)+'</td>';
+  var h='<div class="tbl"><table class="tr"><thead><tr><th class="row">Measure</th>'+AMINES.map(function(a){return '<th class="am'+(st.amine&&st.amine!==a?" dimh":"")+'"><b>'+a+'</b><span>'+AMCLASS[a]+'</span></th>'}).join("")+'</tr></thead><tbody>';
+  cols.forEach(function(g){
+    h+='<tr class="gh"><th class="row" colspan="'+(AMINES.length+1)+'">'+g.g+'<span>'+g.gs+'</span></th></tr>';
+    g.c.forEach(function(c){
+      h+='<tr><th class="row" scope="row">'+c.l+'</th>';
+      AMINES.forEach(function(a){
+        var v=c.get(a),dim=st.amine&&st.amine!==a?" dim":"";
+        if(v==null){h+='<td class="cell na'+dim+'">–</td>';return}
+        var t=c.hi===c.lo?.5:(v-c.lo)/(c.hi-c.lo),pct=Math.round(10+(1-t)*38),n=c.n?c.n(a):0;
+        h+='<td tabindex="0" class="cell'+dim+'" data-a="'+a+'" data-tab="'+c.tab+'" data-rx="'+(c.rx||"")+'" data-k="'+c.k+'" style="background:color-mix(in srgb,var(--accent) '+pct+'%,var(--surface))" title="'+a+' · '+(n?n+' job'+(n>1?"s":"")+' · ':'')+'open in '+(c.tab==="atlas"?"Interaction Atlas":c.tab==="pt"?"Proton Transfer":"Nucleophilic Reactions")+'">'+fmt(v)+'</td>';
+      });
+      h+='</tr>';
     });
-    h+='</tr>';
   });
   h+='</tbody></table></div>';
   var nled=0;AMINES.forEach(function(a){nled+=OV.atlas[a].nled});
@@ -278,7 +287,7 @@ function drawOverview(){
    '<div><p class="hint" style="margin-bottom:8px">Each cell summarises one amine across a view. Darker means a stronger interaction, easier proton transfer or a lower barrier within its column. Select a cell to open that view with the amine (and reaction) already applied.</p>'+h+'</div>'+
    '<div class="note"><h3>Reading across the three views</h3><ul>'+
    '<li>Non-covalent interaction energies come from DFT-level docking, with DLPNO-CCSD(T) single points on '+nled+' of the complexes. Proton transfer and reaction paths are GFN2-xTB. Compare trends within a column, not absolute numbers between column groups.</li>'+
-   '<li>Reaction barriers are the highest NEB image above the reactant, so they are upper bounds on the saddle point. Provisional jobs (barrier under about 10 kcal/mol or an irregular profile) are left out of the medians. Aminolysis has no tertiary-amine entries because tertiary amines cannot form the amide.</li>'+
+   '<li>Reaction barriers use the refined saddle point where an NEB-TS or a TS optimization converged (31 of the newer xTB jobs); otherwise they are the highest NEB image above the reactant, an upper bound. Provisional jobs (climbing-image barrier under about 10 kcal/mol or an irregular profile) are left out of the medians. For the newer xTB jobs (RID 234–292), relaxed scans and failed runs are left out, and ring opening combines the direct and water-bridged versions. Methyl-xyloside glycosidic cleavage has no entry because none of its runs gave a barrier. </li><li>Compare each hydrolysis row only with the water-only value for its own substrate: ferulate ester 38.5 (highest image), xylan acetate 36.6 and methyl p-coumarate 42.7 (refined saddles). The amine lowers the barrier in all three. The ferulate row uses an older model with a water molecule placed next to the amine and neutral products (acid plus free amine), which favours the reaction. The xylan acetate and p-coumarate rows start with water and amine as separate molecules and end as carboxylate plus ammonium, so they include the cost of separating charge. Treat the ferulate row as the optimistic end. Several xylan acetate and p-coumarate values are still climbing-image upper bounds without a refined saddle, so the true barriers sit somewhat lower. Aminolysis has no tertiary-amine entries because tertiary amines cannot form the amide.</li>'+
    '<li>ALPB water runs at 298.15 K; 373.15 K enters only through the frequency step, so barriers are electronic, not free energies.</li>'+
    '<li>Proton-transfer ΔE is the ion pair relative to the neutral H-bonded complex, so it measures how favourable the transfer is, not a barrier.</li></ul></div></div>';
   p.querySelectorAll("[data-go]").forEach(function(b){b.addEventListener("click",function(){var t=b.getAttribute("data-go");go(t,st.amine?{type:"amine",amine:st.amine}:null)})});
@@ -294,12 +303,17 @@ function drawOverview(){
 var NET=null,netEdge="fer-acyl",netNode=null,netAnions=false;
 var NA=[
  {id:"fer",n:"Ferulate ester",s:"feruloyl ester (LCC)",f:"C16H20O9",st:"FerulateEster",w:"3-O-feruloyl glucopyranose, a hydroxycinnamate ester."},
+ {id:"cou",n:"p-Coumarate ester",s:"methyl p-coumarate",f:"C10H10O3",st:"MeCoumarate",w:"Methyl p-coumarate, the model for p-coumaroyl esters on lignin."},
+ {id:"xyl",n:"Xylan acetate",s:"O-acetyl on xylose",f:"C7H12O5",st:"XylAc",w:"Acetylated xylopyranose, the model for O-acetyl groups on xylan."},
  {id:"gam",n:"γ-Glucuronoyl ester",s:"uronate ester at γ-OH",f:"C16H20O9",st:"gammaEster",w:"Coniferyl γ-glucuronate. The model has no β-OH, so acyl migration is not covered."},
  {id:"gly",n:"Phenyl glycoside",s:"aryl β-glucoside",f:"C13H18O7",st:"phenylGlycoside",w:"Guaiacyl β-D-glucoside. Anhydro formation needs a 1,2-trans OH, and the relaxed model is β."},
+ {id:"glc",n:"Glycosidic linkage",s:"methyl xyloside",f:"C6H12O5",st:"MeXyloside",w:"Methyl β-xylopyranoside, the model for the xylan backbone linkage."},
  {id:"ben",n:"Benzyl ethers C2, C6",s:"sugar-O-Cα ethers",f:"C16H24O10",st:"BenzylEtherC6",w:"Lignin Cα–O–sugar ethers. The C2 file has the ether on glucose O-3, not O-2."},
  {id:"b4",n:"β-O-4, phenolic",s:"free phenol, Cα-OH",f:"C19H24O6",st:"betaO4",w:"Phenolic β-O-4 dimer with α-OH and γ-OH."},
  {id:"a4",n:"α-O-4, non-phenolic",s:"Cα aryl ether, Cβ-OH",f:"C19H24O5",st:"alphaO4",w:"Non-phenolic α-O-4 dimer with β-OH and γ-OH. No QM route because both ring oxygens are etherified."},
- {id:"a45",n:"4-O-5",s:"diaryl ether, inert",f:"C16H18O5",st:"4O5",inert:1,w:"Diaryl ether, run only as an SNAr negative control."}];
+ {id:"a45",n:"4-O-5",s:"diaryl ether, inert",f:"C16H18O5",st:"4O5",inert:1,w:"Diaryl ether, run only as an SNAr negative control."},
+ {id:"red",n:"Reducing-end sugar",s:"xylopyranose, glyceraldehyde",f:"C5H10O5",st:"Xylopyranose",w:"Reducing-end xylose and the glyceraldehyde and imine models used for enolization and Amadori steps."},
+ {id:"qa",n:"Quaternary ammonium",s:"ammonium hydroxide",f:"R4N⁺",st:"Ammonium",w:"Tetra-alkylammonium with hydroxide, the Hofmann elimination model."}];
 var NB=[
  {id:"acyl",n:"Acyl substitution",s:"hydrolysis, aminolysis"},
  {id:"aza",n:"Aza-Michael",s:"amine adds to the cinnamate"},
@@ -309,7 +323,14 @@ var NB=[
  {id:"qm",n:"Quinone methide",s:"phenolate expels the ether",key:1},
  {id:"ep",n:"Epoxide formation",s:"alkoxide displaces ArO⁻"},
  {id:"sn2",n:"Direct SN2",s:"benzylic, anomeric, allylic C"},
- {id:"snar",n:"SNAr",s:"amine attacks the ipso C",inert:1}];
+ {id:"snar",n:"SNAr",s:"amine attacks the ipso C",inert:1},
+ {id:"enol",n:"β-O-4 enol path",s:"enol route to ether cleavage"},
+ {id:"enolz",n:"Aldehyde enolization",s:"amine as base"},
+ {id:"amad",n:"Amadori rearrangement",s:"enolization, dehydration, retro-aldol"},
+ {id:"mig",n:"Acetyl migration",s:"between neighbouring OH groups"},
+ {id:"rop",n:"Pyranose ring opening",s:"direct or water-bridged"},
+ {id:"hof",n:"Hofmann E2",s:"hydroxide removes β-H"},
+ {id:"gcl",n:"Glycosidic cleavage",s:"C1–O bond breaks"}];
 var NC=[
  {n:"Acid or amide + alcohol",s:"amide only with EA, DMA, DEA"},
  {n:"β-Amino ester",s:"enol; keto form not modelled"},
@@ -319,13 +340,29 @@ var NC=[
  {n:"Quinone methide",s:"+ sugar-OH or water"},
  {n:"Epoxide + phenol",s:"+ 4-ethylguaiacol or 4-ethylphenol"},
  {n:"Substitution product",s:"amine, alcohol or glycosylamine"},
- {n:"Aryl amine + diphenol",s:"only under forcing conditions",inert:1}];
+ {n:"Aryl amine + diphenol",s:"only under forcing conditions",inert:1},
+ {n:"Enol intermediate",s:"before ether cleavage"},
+ {n:"Enediol or enolate",s:"gateway to isomerization"},
+ {n:"Imine-derived products",s:"enol, dehydration, retro-aldol"},
+ {n:"Regioisomeric acetate",s:"acyl shifted to the next OH"},
+ {n:"Open-chain aldehyde",s:"free carbonyl; can form imine"},
+ {n:"Alkene + tertiary amine",s:"+ water"},
+ {n:"Ion pair",s:"scan end point, dissociation energy"}];
 var ND=[
  {id:"carb",row:0,n:"Carbinolamine, imine",s:"released sugars and aldehydes",src:0},
  {id:"mich",row:2,n:"Michael addition",s:"amine or OH⁻ adds at C4",src:2},
  {id:"trap",row:5,n:"QM trapping",s:"adducts, recombination",src:5}];
 var NE=[
  {k:"fer-acyl",a:"fer",b:"acyl",t:"Ferulate ester → acyl substitution",d:"Water gives the acid; EA and DMA can give the amide and DEA is slowed by sterics. Tertiary amines act only as bases. The explicit water in the hydrolysis jobs is placed next to the amine, so those barriers are optimistic."},
+ {k:"cou-acyl",a:"cou",b:"acyl",t:"p-Coumarate ester → acyl substitution",d:"Hydrolysis and aminolysis of methyl p-coumarate. Amines lower the water-only barrier (42.7). Saponification (3.4) is near barrierless and provisional."},
+ {k:"xyl-acyl",a:"xyl",b:"acyl",t:"Xylan acetate → acyl substitution",d:"Aminolysis, amine-assisted hydrolysis and saponification. Amines lower the water-only barrier (36.6) in every case, from 12.0 (DMA) to 34.4 (DMEA). Saponification (4.2) is near barrierless and provisional."},
+ {k:"xyl-mig",a:"xyl",b:"mig",t:"Xylan acetate → acetyl migration",d:"Acetyl shift between neighbouring hydroxyls, run as the alkoxide only. The first shift (0.4) is near barrierless and the second (16.1) is a modest barrier; both are provisional."},
+ {k:"b4-enol",a:"b4",b:"enol",t:"β-O-4 → enol path",d:"Enolization route to ether cleavage. EA and DEA refine to 42.0 and 41.7 (the climbing images were 74.7 and 72.3, and the optimized saddles were not checked by IRC); TEA and DMA are about 72 and DMEA and DMBA about 41."},
+ {k:"red-enolz",a:"red",b:"enolz",t:"Reducing-end sugar → aldehyde enolization",d:"The amine removes the α-H of glyceraldehyde. Barriers are 6–10, so enolization is easy and ΔE is slightly positive, which makes it reversible. Hydroxide gives 5.5 (provisional)."},
+ {k:"red-amad",a:"red",b:"amad",t:"Reducing-end sugar → Amadori steps",d:"Ethylamine imine of glyceraldehyde: enolization 30.8, dehydration 31.5 and retro-aldol 30.7. Only EA was run, so there is no amine comparison."},
+ {k:"red-rop",a:"red",b:"rop",t:"Reducing-end sugar → pyranose ring opening",d:"Barriers fall from about 41 for primary amines to 27 for tertiary amines. Job 253 (DMA) is provisional."},
+ {k:"qa-hof",a:"qa",b:"hof",t:"Quaternary ammonium → Hofmann E2",d:"Hydroxide removes a β-H from the ammonium. TEA gives 23.9, close to hydroxide on the ammonium model (24.0, job 256). DMEA (291) is 67 on xTB and is provisional."},
+ {k:"glc-gly",a:"glc",b:"gcl",t:"Glycosidic linkage → cleavage",d:"Relaxed scans of methyl xyloside with DEA, TEA and DMBA. The values are ion-pair dissociation energies rather than saddle points, so they are lower limits and very high (52–66)."},
  {k:"fer-aza",a:"fer",b:"aza",t:"Ferulate ester → aza-Michael",d:"Attack at the cinnamate β-carbon is far above acyl attack, so it does not compete."},
  {k:"gam-acyl",a:"gam",b:"acyl",t:"γ-Ester → acyl substitution",d:"Aminolysis (EA, DMA, DEA), amine-assisted hydrolysis and saponification. Hydrolysis jobs 125–130 are provisional because the explicit water may be pre-bound."},
  {k:"gam-e1cb",a:"gam",b:"e1cb",t:"γ-Ester → E1cB elimination",d:"The amine removes the α-H and the C4-OH leaves as water. The barrier rises with amine size. Real LCC has a better leaving group at C4, so this model is conservative."},
@@ -366,14 +403,14 @@ function edgeVal(e,filt){
 }
 var NG={x:[16,396,650,904],w:[164,184,184,190],top:96,dy:60,h:46};
 function ry(i){return NG.top+i*NG.dy}
-function ayFor(i){return ry(0)+(8*NG.dy)*(i/(NA.length-1))}
+function ayFor(i){return ry(0)+((NB.length-1)*NG.dy)*(i/(NA.length-1))}
 function bez(x1,y1,x2,y2,t){var dx=(x2-x1)*.5,c1x=x1+dx,c2x=x2-dx,u=1-t;return {x:u*u*u*x1+3*u*u*t*c1x+3*u*t*t*c2x+t*t*t*x2,y:u*u*u*y1+3*u*u*t*y1+3*u*t*t*y2+t*t*t*y2,d:"M"+x1+" "+y1+"C"+c1x+" "+y1+" "+c2x+" "+y2+" "+x2+" "+y2}}
 function nodeSvg(kind,i,x,y,w,o,extra){
   return '<g class="node'+(netNode===kind+i?" sel":"")+'" data-n="'+kind+i+'" tabindex="0" role="button" aria-label="'+o.n+'"><rect class="nrect'+(o.inert?" inert":"")+(o.key?" key":"")+'" x="'+x+'" y="'+(y-NG.h/2)+'" width="'+w+'" height="'+NG.h+'" rx="8"/><text class="nn" x="'+(x+10)+'" y="'+(y-3)+'">'+o.n+'</text><text class="ns" x="'+(x+10)+'" y="'+(y+13)+'">'+o.s+'</text></g>';
 }
 function drawNet(){
   var p=$("pane-net");if(!NET){p.innerHTML='<p class="hint">Loading network…</p>';return}
-  var W=1110,H=ry(8)+150,g='';
+  var W=1110,H=ry(NB.length-1)+150,g='';
   g+='<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path class="mk" d="M0 0L10 5L0 10z"/></marker></defs>';
   ["LINKAGE","KEY STEP","PRIMARY PRODUCTS","FOLLOW-ON STEP"].forEach(function(t,i){g+='<text class="colh" x="'+NG.x[i]+'" y="70">'+t+'</text>'});
   var ay={},by={};NA.forEach(function(a,i){ay[a.id]=ayFor(i)});NB.forEach(function(b,i){by[b.id]=ry(i)});
@@ -400,8 +437,8 @@ function drawNet(){
   NB.forEach(function(b,i){g+=nodeSvg("b",i,NG.x[1],ry(i),NG.w[1],b)});
   NC.forEach(function(c,i){g+=nodeSvg("c",i,NG.x[2],ry(i),NG.w[2],c)});
   ND.forEach(function(d,i){g+=nodeSvg("d",i,NG.x[3],ry(d.row),NG.w[3],d)});
-  var by0=ry(8)+52;
-  g+='<rect class="band" x="16" y="'+by0+'" width="1078" height="62" rx="8"/><text class="nn" x="30" y="'+(by0+22)+'">Follow-on chemistry, not run as NEB jobs</text><text class="ns" x="30" y="'+(by0+42)+'">Glycosylamine and Amadori rearrangement, LdB–vE isomerization, retro-aldol, saccharinic acids, formaldehyde aminals and Mannich products, carbamate.</text>';
+  var by0=ry(NB.length-1)+52;
+  g+='<rect class="band" x="16" y="'+by0+'" width="1078" height="62" rx="8"/><text class="nn" x="30" y="'+(by0+22)+'">Follow-on chemistry, not run as NEB jobs</text><text class="ns" x="30" y="'+(by0+42)+'">Glycosylamine formation, LdB–vE isomerization, retro-aldol, saccharinic acids, formaldehyde aminals and Mannich products, carbamate.</text>';
   var sel=NE.filter(function(e){return e.k===netEdge})[0];
   var html='<div class="netw"><div class="nethead"><h2>Reaction network at 100 °C in implicit water</h2>'+
    '<label class="tog" for="tog-an"><input type="checkbox" id="tog-an"'+(netAnions?' checked':'')+'> Include hydroxide, alkoxide and phenolate routes (high pH)</label></div>'+
@@ -437,7 +474,7 @@ function drawNetDetail(){
   h='<div class="det"><h3>'+e.t+'</h3><p>'+e.d+'</p>'+
    '<p style="color:var(--fg)">'+(ev?'Lowest barrier for the current filter: <b>'+ev.v.toFixed(1)+' kcal/mol</b> (RID '+ev.j.rid+', '+nucLabel(ev.j)+')'+(ev.j.prov?', provisional':'')+'.':'No path is available for the current filter. Tertiary amines cannot form amides, and anionic routes are hidden unless you include them.')+'</p>'+
    amineStrip(e)+'<div class="jt tbl"><table><thead><tr><th class="l">RID</th><th class="l">Nucleophile</th><th class="l">Step</th><th>Barrier</th><th>ΔE</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
-   '<p class="hint">Dimmed rows are excluded by the amine filter or by the anionic-route switch. Barrier is the highest of ten images above the reactant, kcal/mol.</p></div>';
+   '<p class="hint">Dimmed rows are excluded by the amine filter or by the anionic-route switch. Barrier is the refined saddle above the reactant where the NEB-TS or a TS optimization converged (marked in the edge text), otherwise the highest of ten NEB images (an upper bound), kcal/mol.</p></div>';
   box.innerHTML=h;
   box.querySelectorAll("button[data-rid]").forEach(function(b){b.addEventListener("click",function(){go("nuc",{type:"rid",rid:+b.getAttribute("data-rid")})})});
 }
@@ -455,7 +492,7 @@ function amineStrip(e){
     return '<div class="ab '+cls+(r&&r.v===lo?" lo":"")+'"><b>'+a+' <span style="font-weight:400;color:var(--muted)">'+AMCLASS[a]+'</span></b><span class="n">'+fv(r)+'</span><small>'+(r?(r.j.dE>0?"ΔE +":"ΔE −")+Math.abs(r.j.dE).toFixed(1)+" · "+r.j.rx.replace(/([a-z])([A-Z])/g,"$1 $2"):"no path for this amine")+'</small></div>'}).join("")+'</div></div>';
 }
 function matrixHtml(){
-  var h='<div class="mx"><h3>Barrier by amine, every route</h3><p class="hint" style="margin:0">Lowest barrier per route and amine, kcal/mol (highest NEB image above reactant). Outlined cell = lowest amine in the row; DMA is framed. Water and anion columns are the reference routes. † provisional. “–” means no job (tertiary amines cannot aminolyse; not every amine was run on every route). Select a row label to open that route.</p><div class="tbl"><table><thead><tr><th class="l" style="text-align:left">Route</th>'+
+  var h='<div class="mx"><h3>Barrier by amine, every route</h3><p class="hint" style="margin:0">Lowest barrier per route and amine, kcal/mol (refined saddle where available, otherwise the highest NEB image). Outlined cell = lowest amine in the row; DMA is framed. Water and anion columns are the reference routes. † provisional. “–” means no job (tertiary amines cannot aminolyse; not every amine was run on every route). Select a row label to open that route.</p><div class="tbl"><table><thead><tr><th class="l" style="text-align:left">Route</th>'+
    AMINES.map(function(a){return '<th'+(a==="DMA"?' class="dma"':'')+' style="text-align:center">'+a+'</th>'}).join("")+'<th style="text-align:center">Water</th><th style="text-align:center">Anion</th></tr></thead><tbody>';
   NE.forEach(function(e){
     var vs=AMINES.map(function(a){return edgeVal(e,amFilt(a))}),lo=Math.min.apply(null,vs.map(function(r){return r?r.v:1e9}));
@@ -471,11 +508,9 @@ fetch("network.json").then(function(r){return r.json()}).then(function(d){NET=d;
 
 fetch("overview.json").then(function(r){return r.json()}).then(function(d){
   OV=d;var n=0;AMINES.forEach(function(a){n+=OV.atlas[a].n});
-  $("counts").textContent=n+" complexes · 90 proton-transfer paths · 132 reaction paths";
+  $("counts").textContent=n+" complexes · 90 proton-transfer paths · 191 reaction paths";
   drawOverview();
 }).catch(function(e){$("pane-ov").innerHTML='<p class="hint">Could not load overview.json: '+e+'</p>'});
 drawChips();drawOverview();drawNet();show("ov");
 })();
 </script>
-
-</body></html>

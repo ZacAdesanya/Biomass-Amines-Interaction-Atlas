@@ -1,27 +1,31 @@
-# Amine-Lignocellulose Interaction Atlas
+# Amine–Lignocellulose Interaction Atlas
 
-Interactive atlas of amine interactions with lignocellulose monomers: non-covalent docking and DLPNO-CCSD(T)/LED energies, proton-transfer paths, a reaction network, and nucleophilic reaction paths.
+Interactive web atlas of amine–lignocellulose interactions and reaction pathways computed with DFT and semiempirical xTB (ORCA, implicit water): interaction complexes, proton-transfer paths, a reaction network, and nudged-elastic-band (NEB) minimum-energy paths for nucleophilic reactions of six amines (EA, DEA, TEA, DMA, DMEA, DMBA).
 
-**Live site:** `https://<your-username>.github.io/<repo-name>/`
+**Live viewer:** enable GitHub Pages (Settings → Pages → Deploy from branch → `main` / root); the atlas is then served from `index.html`.
+**Archive:** DOI assigned by Zenodo on release (see `CITATION.cff`).
 
-## Files
-| File | Role |
+## Contents
+| File | Purpose |
 |---|---|
-| `index.html` | Main page (tabs: Overview, Interaction Atlas, Proton Transfer, Reaction Network, Nucleophilic Reactions) |
-| `atlas.html`, `proton.html`, `nucleophilic.html` | Embedded views |
-| `library.json` | 72 complexes: geometry, contacts, docking and LED energies |
-| `overview.json`, `network.json`, `reactions.json` | Overview table, reaction network, proton-transfer paths |
+| `index.html` | Shell: Overview, Interaction Atlas, Proton Transfer, Reaction Network, Nucleophilic Reactions tabs |
+| `atlas.html`, `library.json` | Interaction Atlas (docking, CCSD(T) ΔE) |
+| `proton.html`, `reactions.json` | Proton-transfer paths |
+| `nucleophilic.html` | NEB paths and 3D viewer (data embedded in the page) |
+| `overview.json`, `network.json` | Overview medians and reaction-network barriers |
 
-## Run locally
-The pages load JSON with `fetch`, so open them through a server, not by double-click:
+## Level of theory and status
+This release is the **xTB build (v16)**: xTB NEB-TS in ORCA 6 (`!XTB ALPB(Water) NEB-TS`), barriers from refined saddle points. Jobs flagged *provisional* in the viewer have unresolved issues and are excluded from the Overview medians. B3LYP-D3BJ/def2-SVP (CPCM water) results are being added in a later release.
+
+## Running locally
+Browsers block `fetch` on `file://`, so serve the folder:
 ```
-python -m http.server 8000
+python3 -m http.server 8000
 ```
-then visit http://localhost:8000.
+and open http://localhost:8000. 3D views load 3Dmol.js from cdnjs and fonts from Google Fonts (internet required).
 
-## Notes
-- DLPNO-CCSD(T) interaction energies are available for 49 of 72 pairs, CCSD-only for 16, none yet for 7. Unfinished jobs are being rerun; the atlas will be updated.
-- Network and NEB paths: GFN2-xTB with ALPB(water).
-- Licence: data CC BY 4.0 (see `.zenodo.json`, `CITATION.cff`). Add a LICENSE file with the code licence you prefer.
+## License
+Data and page content: CC BY 4.0. Code (HTML/JS): MIT. See `LICENSE`.
 
-Author: Taiwo Zacchaeus Adesanya, University of Illinois Chicago.
+## Citation
+See `CITATION.cff` / `.zenodo.json`.

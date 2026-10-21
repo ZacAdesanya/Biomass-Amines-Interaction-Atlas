@@ -207,6 +207,7 @@
   .led-seg{ display:inline-block; height:100%; }
   .led-key{ display:flex; gap:10px; flex-wrap:wrap; font-size:10.5px; color:var(--muted); margin-top:6px; font-family:"IBM Plex Mono",monospace; }
   .led-key-item{ display:inline-flex; align-items:center; gap:4px; }
+  .led-prep{ font-size:10.5px; color:var(--muted); margin-top:6px; line-height:1.4; }
   .led-key-item i{ width:8px; height:8px; border-radius:2px; display:inline-block; }
   .note-line{ color:var(--warn); font-size:12px; }
   .atom-legend{ display:flex; gap:10px; flex-wrap:wrap; font-size:11px; color:var(--muted); }
@@ -229,7 +230,7 @@
   <header class="top">
     <span class="eyebrow">Amine &middot; Lignocellulose &middot; DFT complexes</span>
     <h1>Non-covalent interactions</h1>
-    <p>Optimized docking conformation showing interactions of 6 amines with monomers of cellulose (glucose), hemicellulose (xylose, arabinose and gluruconic acid) and lignin. The amines are Ethylamine (EA), Diethylamine (DEA), Triethylamine (TEA), Dimethylamine (DMA), Dimethylethylamine (DMEA) and Dimethylbutylamine (DMBA). Each pairing reports the interaction energy (kcal/mol) of the lowest-energy docking conformation found, and, where available, a benchmark DLPNO-CCSD(T)/LED (Local Energy Decomposition) single-point interaction energy computed on that same geometry &mdash; broken down into electrostatics, exchange, dispersion and charge-transfer/induction contributions. Browse the substrate&times;amine grid or the sortable table, then open any cell/row for an interactive 3D view of the actual xyz geometry with the closest amine&ndash;substrate contact highlighted.</p>
+    <p>Optimized docking conformation showing interactions of 6 amines with monomers of cellulose (glucose), hemicellulose (xylose, arabinose and gluruconic acid) and lignin. The amines are Ethylamine (EA), Diethylamine (DEA), Triethylamine (TEA), Dimethylamine (DMA), Dimethylethylamine (DMEA) and Dimethylbutylamine (DMBA). Each pairing reports the interaction energy (kcal/mol) of the lowest-energy docking conformation found, and a benchmark DLPNO-CCSD(T)/LED (Local Energy Decomposition) single-point interaction energy computed on that same geometry &mdash; broken down into electrostatics, exchange, dispersion and charge-transfer/induction contributions. Browse the substrate&times;amine grid or the sortable table, then open any cell/row for an interactive 3D view of the actual xyz geometry with the closest amine&ndash;substrate contact highlighted.</p>
     <div class="stats-row" id="stats"></div>
   </header>
 
@@ -249,7 +250,7 @@
       </div>
 
       <div id="grid-wrap" class="grid-panel">
-        <div class="grid-legend-hint">Each cell is one DFT-optimized complex. Shade shows the lowest-conformation docking interaction energy: the darker the teal, the stronger the interaction. The tag is the primary interaction category (A&ndash;F, the closest amine&ndash;substrate contact) with its distance. Where present, the lower value is the DLPNO-CCSD(T) interaction energy on the same geometry (65/72 so far). Small coloured tags mark secondary contacts (carbonyl-O, ether-O, methoxyl-O). Click a cell to load it in the 3D viewer. Hatched = not yet analyzed.
+        <div class="grid-legend-hint">Each cell is one DFT-optimized complex. Shade shows the lowest-conformation docking interaction energy: the darker the teal, the stronger the interaction. The tag is the primary interaction category (A&ndash;F, the closest amine&ndash;substrate contact) with its distance. Where present, the lower value is the DLPNO-CCSD(T) interaction energy on the same geometry (all 72 complexes). Small coloured tags mark secondary contacts (carbonyl-O, ether-O, methoxyl-O). Click a cell to load it in the 3D viewer. Hatched = not yet analyzed.
           <div class="scale"><span id="sc-lo"></span><i class="sbar"></i><span id="sc-hi"></span></div></div>
         <div class="grid-scroll">
           <div class="gridview" id="gridview"></div>
@@ -673,6 +674,11 @@
         }).join("") + '</div><div class="led-key">' + bars.map(function(b){
           return '<span class="led-key-item"><i style="background:'+b[2]+'"></i>'+b[0]+' '+b[1].toFixed(0)+'%</span>';
         }).join(" ") + '</div>';
+        if (typeof r.led.prep_kcal === "number"){
+          ldecomp.innerHTML += '<div class="led-prep">Bar = share of the four attractive terms (sum ' + r.led.terms_sum_kcal.toFixed(1) +
+            ' kcal/mol). Intra-fragment preparation (repulsive) ' + (r.led.prep_kcal >= 0 ? "+" : "") + r.led.prep_kcal.toFixed(1) +
+            ' brings the total to \u0394E ' + r.led.dE_int_kcal.toFixed(2) + ' kcal/mol.</div>';
+        }
       } else {
         ldecomp.hidden = true;
         ldecomp.innerHTML = "";

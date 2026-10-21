@@ -1,9 +1,12 @@
 cff-version: 1.2.0
-message: "If you use this atlas or its data, please cite it."
-title: "Interaction Atlas of Amines with Lignocellulose Monomers"
-version: "1.0"
+message: "If you use this atlas, please cite it."
+title: "Amine–Lignocellulose Interaction Atlas (xTB build, v1.0.0)"
+version: "1.0.0"
+date-released: "2026-10-21"
+license: CC-BY-4.0
 authors:
   - family-names: Adesanya
     given-names: Taiwo Zacchaeus
     affiliation: "University of Illinois Chicago"
-license: CC-BY-4.0
+keywords: [lignocellulose, amines, pretreatment, NEB, xTB, DFT, reaction network]
+abstract: "Interactive atlas of amine–lignocellulose interaction complexes, proton-transfer paths and xTB nudged-elastic-band reaction paths in implicit water."
